@@ -1,25 +1,22 @@
-import requests
+import cloudscraper
 
-"""
-https?://(mdisk\.me\/convertor)\S+
-https://mdisk.me/convertor/53x30/vNv9FC
-"""
+# Accepting MDisk URL from User
+url = input("Enter your MDisk URL : ")
 
-def mdisk_bypass(url: str) -> str:
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
-    }
-    url = url[:-1] if url[-1] == '/' else url
-    token = url.split("/")[-1]
-    
-    
-    api = f"https://diskuploader.entertainvideo.com/v1/file/cdnurl?param={token}"
-    
-    response = requests.get(api, headers=headers).json() 
-        
-    download_url = response["download"]
-    download_url = download_url.replace(" ", "%20")
-    
-    return download_url
-    
+def mdisk(url):
+    api = "https://api.emilyx.in/api"
+    client = cloudscraper.create_scraper(allow_brotli=False)
+    resp = client.get(url)
+    if resp.status_code == 404:
+        return "File not found/The link you entered is wrong!"
+    try:
+        resp = client.post(api, json={"type": "mdisk", "url": url})
+        res = resp.json()
+    except BaseException:
+        return "API UnResponsive / Invalid Link!"
+    if res["success"] is True:
+        return "\nDL URL: " + res["url"] + "\n"
+    else:
+        return res["msg"]
+
+print(mdisk(url=url))
